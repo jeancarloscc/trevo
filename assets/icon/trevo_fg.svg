@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Versão sem fundo (foreground do adaptive icon Android), trevo menor
+       para respeitar a área segura recortada pelo sistema. -->
+  <g transform="translate(512,512) scale(1.18)">
+    <path d="M 0,15 C 26,90 22,165 55,215" fill="none" stroke="#ffffff"
+          stroke-width="22" stroke-linecap="round"/>
+    <g fill="#ffffff" transform="rotate(45)">
+      <path d="M 0,0 C -50,-50 -105,-80 -105,-145 C -105,-195 -55,-215 0,-175 C 55,-215 105,-195 105,-145 C 105,-80 50,-50 0,0 Z"/>
+      <path transform="rotate(90)"  d="M 0,0 C -50,-50 -105,-80 -105,-145 C -105,-195 -55,-215 0,-175 C 55,-215 105,-195 105,-145 C 105,-80 50,-50 0,0 Z"/>
+      <path transform="rotate(180)" d="M 0,0 C -50,-50 -105,-80 -105,-145 C -105,-195 -55,-215 0,-175 C 55,-215 105,-195 105,-145 C 105,-80 50,-50 0,0 Z"/>
+      <path transform="rotate(270)" d="M 0,0 C -50,-50 -105,-80 -105,-145 C -105,-195 -55,-215 0,-175 C 55,-215 105,-195 105,-145 C 105,-80 50,-50 0,0 Z"/>
+    </g>
+  </g>
+</svg>

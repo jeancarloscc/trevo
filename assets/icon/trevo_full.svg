@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#27b074"/>
+      <stop offset="1" stop-color="#1a7a51"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <g transform="translate(512,512) scale(1.4)">
+    <!-- haste do trevo -->
+    <path d="M 0,15 C 26,90 22,165 55,215" fill="none" stroke="#ffffff"
+          stroke-width="22" stroke-linecap="round"/>
+    <!-- quatro folhas em diagonal -->
+    <g fill="#ffffff" transform="rotate(45)">
+      <path d="M 0,0 C -50,-50 -105,-80 -105,-145 C -105,-195 -55,-215 0,-175 C 55,-215 105,-195 105,-145 C 105,-80 50,-50 0,0 Z"/>
+      <path transform="rotate(90)"  d="M 0,0 C -50,-50 -105,-80 -105,-145 C -105,-195 -55,-215 0,-175 C 55,-215 105,-195 105,-145 C 105,-80 50,-50 0,0 Z"/>
+      <path transform="rotate(180)" d="M 0,0 C -50,-50 -105,-80 -105,-145 C -105,-195 -55,-215 0,-175 C 55,-215 105,-195 105,-145 C 105,-80 50,-50 0,0 Z"/>
+      <path transform="rotate(270)" d="M 0,0 C -50,-50 -105,-80 -105,-145 C -105,-195 -55,-215 0,-175 C 55,-215 105,-195 105,-145 C 105,-80 50,-50 0,0 Z"/>
+    </g>
+  </g>
+</svg>
