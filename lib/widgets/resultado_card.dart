@@ -26,10 +26,7 @@ class ResultadoCard extends StatelessWidget {
 
   /// Formata um valor numérico como moeda brasileira (R$ 1.234,56).
   String _formatarReais(double valor) {
-    final formatador = NumberFormat.currency(
-      locale: 'pt_BR',
-      symbol: 'R\$',
-    );
+    final formatador = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
     return formatador.format(valor);
   }
 
@@ -38,6 +35,9 @@ class ResultadoCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return SingleChildScrollView(
+      // Permite o overscroll mesmo quando o conteúdo cabe na tela — sem
+      // isso o pull-to-refresh não dispara em resultados curtos.
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -124,7 +124,9 @@ class ResultadoCard extends StatelessWidget {
   Widget _buildStatusAcumulo(ThemeData theme) {
     final acumulou = jogo.acumulou;
     final corStatus = acumulou ? Colors.orange.shade700 : Colors.green.shade700;
-    final icone = acumulou ? Icons.trending_up_rounded : Icons.emoji_events_rounded;
+    final icone = acumulou
+        ? Icons.trending_up_rounded
+        : Icons.emoji_events_rounded;
     final texto = acumulou
         ? 'O prêmio principal ACUMULOU!'
         : 'Houve ganhador(es) no prêmio principal!';

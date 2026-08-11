@@ -11,14 +11,18 @@ import '../widgets/resultado_card.dart';
 /// através de uma [NavigationBar] e consultar tanto o último resultado
 /// quanto um concurso específico (pelo número), usando um [FutureBuilder].
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  /// Serviço de consulta. Injetável para testes; em produção a tela cria
+  /// o seu próprio, mantendo um único cache durante toda a sessão.
+  final LoteriaService? service;
+
+  const HomeScreen({super.key, this.service});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final LoteriaService _service = LoteriaService();
+  late final LoteriaService _service = widget.service ?? LoteriaService();
 
   /// Índice da modalidade selecionada na barra inferior.
   int _indiceAtual = 0;
@@ -40,20 +44,33 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    _service.dispose();
+    // Um serviço injetado pertence a quem o criou; só fechamos o nosso.
+    if (widget.service == null) _service.dispose();
     super.dispose();
   }
 
   /// (Re)dispara a busca do resultado para a modalidade e concurso
   /// atualmente selecionados e atualiza o estado.
-  void _carregarResultado() {
+  ///
+  /// Devolve um [Future] que completa quando a busca termina — é isso que
+  /// permite ao [RefreshIndicator] manter a animação até os dados chegarem.
+  Future<void> _carregarResultado({bool forcarAtualizacao = false}) {
     final loteria = loteriasDisponiveis[_indiceAtual];
+    final future = _service.buscarResultado(
+      loteria.slug,
+      concurso: _concursoSelecionado,
+      forcarAtualizacao: forcarAtualizacao,
+    );
+
+    // Bloco (e não arrow): uma arrow devolveria o próprio Future atribuído,
+    // e o setState rejeita callbacks que retornam Future.
     setState(() {
-      _futureResultado = _service.buscarResultado(
-        loteria.slug,
-        concurso: _concursoSelecionado,
-      );
+      _futureResultado = future;
     });
+
+    // O erro já é renderizado pelo FutureBuilder; aqui ele é apenas
+    // absorvido para que o refresh termine em vez de propagar a exceção.
+    return future.then((_) {}).catchError((_) {});
   }
 
   /// Callback de troca de aba na barra inferior. Ao mudar de loteria,
@@ -161,7 +178,8 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             tooltip: 'Atualizar',
             icon: const Icon(Icons.refresh_rounded),
-            onPressed: _carregarResultado,
+            // Atualizar é um pedido explícito de dados novos: ignora o cache.
+            onPressed: () => _carregarResultado(forcarAtualizacao: true),
           ),
         ],
       ),
@@ -174,12 +192,31 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: RefreshIndicator(
               color: loteriaAtual.cor,
-              onRefresh: () async => _carregarResultado(),
+              // Repassa o Future da requisição para que o indicador continue
+              // girando até a resposta chegar, e força a ida à rede — um
+              // pull-to-refresh que devolvesse o cache não atualizaria nada.
+              onRefresh: () => _carregarResultado(forcarAtualizacao: true),
               child: FutureBuilder<JogoLoteria>(
                 future: _futureResultado,
                 builder: (context, snapshot) {
-                  // Estado de carregamento: indicador circular centralizado.
+                  // Estado de carregamento. Se já temos um resultado desta
+                  // modalidade (mesmo vencido), ele continua na tela enquanto
+                  // a atualização roda — evita o "flash" de tela vazia.
                   if (snapshot.connectionState == ConnectionState.waiting) {
+                    final anterior = _service.resultadoEmCache(
+                      loteriaAtual.slug,
+                      concurso: _concursoSelecionado,
+                      aceitarVencido: true,
+                    );
+
+                    if (anterior != null) {
+                      return ResultadoCard(
+                        jogo: anterior,
+                        nomeLoteria: loteriaAtual.nome,
+                        cor: loteriaAtual.cor,
+                      );
+                    }
+
                     return Center(
                       child: CircularProgressIndicator(color: loteriaAtual.cor),
                     );
@@ -189,7 +226,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (snapshot.hasError) {
                     return MensagemErro(
                       mensagem: snapshot.error.toString(),
-                      onTentarNovamente: _carregarResultado,
+                      onTentarNovamente: () =>
+                          _carregarResultado(forcarAtualizacao: true),
                     );
                   }
 
@@ -215,10 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onDestinationSelected: _onItemSelecionado,
         destinations: loteriasDisponiveis
             .map(
-              (l) => NavigationDestination(
-                icon: Icon(l.icone),
-                label: l.nome,
-              ),
+              (l) => NavigationDestination(icon: Icon(l.icone), label: l.nome),
             )
             .toList(),
       ),

@@ -83,8 +83,9 @@ class JogoLoteria {
       dezenas: dezenas,
       premiacoes: premiacoes,
       acumulou: json['acumulou'] == true,
-      proximoConcurso:
-          _asInt(json['proximoConcurso'] ?? json['proximo_concurso']),
+      proximoConcurso: _asInt(
+        json['proximoConcurso'] ?? json['proximo_concurso'],
+      ),
       dataProximoConcurso:
           (json['dataProximoConcurso'] ?? json['data_proximo_concurso'] ?? '')
               .toString(),
